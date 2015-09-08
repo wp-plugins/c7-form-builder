@@ -3,14 +3,15 @@
  * Plugin Name:       C7 Form Builder
  * Plugin URI:        https://github.com/chetanchauhan/c7-form-builder/
  * Description:       Provides an easy to use and powerful API for building forms that can be displayed, customized and saved any way you want.
- * Version:           1.0.0-beta
+ * Version:           1.0.0-beta.2
  * Author:            Chetan Chauhan
  * Author URI:        https://github.com/chetanchauhan/
  * Text Domain:       c7-form-builder
  * Domain Path:       /languages
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Copyright (c) 2014 Chetan Chauhan (email : chetanchauhan1991@gmail.com)
+ *
+ * Copyright (c) 2014-2015 Chetan Chauhan (email : chetanchauhan1991@gmail.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * @package           C7_Form_Builder
  **/
 
 // If this file is called directly, abort.
@@ -34,7 +37,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 // C7 Form Builder version, used for cache-busting of style and script file references.
 if ( ! defined( 'C7_FORM_BUILDER_VERSION' ) ) {
-	define( 'C7_FORM_BUILDER_VERSION', '1.0.0-beta' );
+	define( 'C7_FORM_BUILDER_VERSION', '1.0.0-beta.2' );
 }
 
 // Define the plugin directory path.
@@ -71,29 +74,29 @@ function _cfb_autoload_classes( $class_name ) {
 	$file_name        = 'class-' . str_replace( '_', '-', strtolower( $class_name ) ) . '.php';
 	$class_group      = substr( $class_name, strrpos( $class_name, '_' ) + 1 );
 	$abstract_classes = array(
-		'CFB_Core',
-		'CFB_Field',
-		'CFB_Field_View',
-		'CFB_Field_View_Helper',
-		'CFB_Form',
-		'CFB_Form_View',
-		'CFB_Form_View_Helper',
-		'CFB_Storage',
-		'CFB_View',
-		'CFB_View_Helper',
+		'CFB_Core'              => true,
+		'CFB_Field'             => true,
+		'CFB_Field_View'        => true,
+		'CFB_Field_View_Helper' => true,
+		'CFB_Form'              => true,
+		'CFB_Form_View'         => true,
+		'CFB_Form_View_Helper'  => true,
+		'CFB_Storage'           => true,
+		'CFB_View'              => true,
+		'CFB_View_Helper'       => true,
 	);
 
-	if ( in_array( $class_name, $abstract_classes ) ) {
+	if ( isset( $abstract_classes[ $class_name ] ) ) {
 		$path = 'abstracts/';
-	} elseif ( $class_group === 'Form' ) {
+	} elseif ( 'Form' === $class_group ) {
 		$path = 'forms/';
-	} elseif ( $class_group === 'Field' ) {
+	} elseif ( 'Field' === $class_group ) {
 		$path = 'fields/';
-	} elseif ( $class_group === 'Storage' ) {
+	} elseif ( 'Storage' === $class_group ) {
 		$path = 'storage/';
-	} elseif ( $class_group === 'View' ) {
+	} elseif ( 'View' === $class_group ) {
 		$path = 'views/';
-	} elseif ( $class_group === 'Helper' ) {
+	} elseif ( 'Helper' === $class_group ) {
 		$path = 'views/_helpers/';
 	}
 

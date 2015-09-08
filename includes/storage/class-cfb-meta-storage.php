@@ -7,7 +7,7 @@
  * @author     Chetan Chauhan <chetanchauhan1991@gmail.com>
  * @license    GPL-2.0+
  * @link       https://github.com/chetanchauhan/c7-form-builder/
- * @copyright  2014 Chetan Chauhan
+ * @copyright  2014-2015 Chetan Chauhan
  * @since      1.0.0
  */
 
@@ -105,6 +105,8 @@ class CFB_Meta_Storage extends CFB_Storage {
 	 * @param $value
 	 */
 	public function update_value( $value ) {
+		$value = wp_slash( $value );
+
 		// If the value is an associative array, save it as a single metadata entry.
 		if ( is_array( $value ) && cfb_is_array_assoc( $value ) ) {
 			update_metadata( $this->meta_type, $this->get_object_id(), $this->get_storage_key(), $value );

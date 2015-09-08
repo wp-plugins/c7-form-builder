@@ -66,7 +66,7 @@ window.c7FormBuilder = (function ($) {
 				form.find('.cfb-form-tabs[data-tab="' + tab + '"]').addClass('cfb-active-tab').siblings().removeClass('cfb-active-tab');
 
 				// Toggle the field visibility.
-				form.find('.cfb-field-wrapper').each(
+				form.find('.cfb-form-fields > .cfb-field-wrapper').each(
 					function () {
 						if (($(this).data('tab') === tab)) {
 							$(this).fadeIn();
@@ -90,23 +90,23 @@ window.c7FormBuilder = (function ($) {
 			editor: {
 				initialize: function (selection) {
 					cfb.getAllFieldControls(selection, {type: 'editor'}).each(function () {
-						var textarea = $(this).find('textarea.wp-editor-area'),
-							id = textarea.attr('id'),
-							oldID = textarea.data('prev-id');
+						var wrap = $(this).find('.wp-editor-wrap'),
+							id = wrap.find('.wp-editor-area').attr('id'),
+							settings = wrap.attr('data-editor-settings');
 
 						if (typeof( tinyMCEPreInit.mceInit[id] ) === 'undefined') {
-							tinyMCEPreInit.mceInit[id] = $.extend({}, tinyMCEPreInit.mceInit[oldID], {
+							tinyMCEPreInit.mceInit[id] = $.extend({}, tinyMCEPreInit.mceInit[settings], {
 								selector: '#' + id,
 								body_class: id
 							});
 						}
 
 						if (typeof( tinyMCEPreInit.qtInit[id] ) === 'undefined') {
-							tinyMCEPreInit.qtInit[id] = $.extend({}, tinyMCEPreInit.qtInit[oldID], {id: id});
+							tinyMCEPreInit.qtInit[id] = $.extend({}, tinyMCEPreInit.qtInit[settings], {id: id});
 						}
 
 						// Initialize tinyMCE
-						if (!tinymce.get(id) && $(this).find('.wp-editor-wrap').hasClass('tmce-active')) {
+						if (!tinymce.get(id) && wrap.hasClass('tmce-active')) {
 							try {
 								tinymce.init(tinyMCEPreInit.mceInit[id]);
 							} catch (e) {
@@ -125,24 +125,17 @@ window.c7FormBuilder = (function ($) {
 				},
 				destroy: function (selection) {
 					cfb.getAllFieldControls(selection, {type: 'editor'}).each(function () {
-						var textarea = $(this).find('textarea.wp-editor-area'),
+						var textarea = $(this).find('.wp-editor-area'),
 							id = textarea.attr('id'),
-							ed = tinymce.get(id),
-							qt = QTags.getInstance(id);
-
-						// Save the current id for reinitialization.
-						if (!textarea.attr('data-prev-id')) {
-							textarea.attr('data-prev-id', textarea.attr('id'));
-						}
+							ed = tinymce.get(id);
 
 						if (ed) {
 							ed.save();
 							ed.remove();
 						}
-						if (qt) {
-							$(this).find('#qt_' + id + '_toolbar').remove();
-							delete QTags.instances[id];
-						}
+
+						$(this).find('#qt_' + id + '_toolbar').remove();
+						delete QTags.instances[id];
 					});
 				}
 			}
@@ -155,16 +148,18 @@ window.c7FormBuilder = (function ($) {
 					return;
 				}
 				cfb.getFieldControlWrapper(field).sortable({
-					axis: 'y',
 					cursor: 'move',
+					handle: '.cfb-sort-handle',
 					items: ' > .cfb-field-control',
 					forcePlaceholderSize: true,
 					forceHelperSize: true,
 					tolerance: 'pointer',
-					placeholder: 'cfb-field-control-placeholder',
+					placeholder: 'cfb-field-control cfb-field-control-placeholder',
 					start: function (event, ui) {
 						// Cache the original position.
-						ui.item.data('sortstart-index', ui.item.index());
+						var index = $(event.target).find('> .cfb-field-control').not('.cfb-empty-control').index(ui.item);
+						ui.item.data('sortstart-index', index);
+
 						wp.hooks.doAction('cfb.sortstart', event, ui);
 					},
 					stop: function (event, ui) {
@@ -424,7 +419,8 @@ window.c7FormBuilder = (function ($) {
 			wp.hooks.doAction('cfb.pre_update_controls', controls, field, form);
 
 			controls.each(function () {
-				index = $(this).index();
+				index = cfb.getFieldControls(field).index($(this));
+
 				$(this).find('label.cfb-field-label').each(function () {
 					forAttr = $(this).attr('for').replace(idRegex, '$1-' + index);
 					$(this).attr('for', forAttr);
@@ -445,57 +441,35 @@ window.c7FormBuilder = (function ($) {
 		},
 
 		/**
-		 * Retrieves the repeatable handles used for adding/removing
-		 * field controls.
+		 * Appends handles to repeatable fields.
 		 *
-		 * @returns {jQuery}
-		 */
-		getHandles: function () {
-			var handles = $([
-				'<div class="cfb-repeatable-handles">',
-				'<a href="#" class="button button-primary cfb-add-control">' + this.l18n('add_control_button_text') + '</a>',
-				'<a href="#" class="button button-secondary cfb-remove-control">' + this.l18n('remove_control_button_text') + '</a>',
-				'</div>'
-			].join(''));
-
-			return wp.hooks.applyFilters('cfb.get_handles', handles);
-		},
-
-		/**
-		 * Appends the repeatable handles to the field.
+		 * This adds handles for dynamically adding/removing field controls
+		 * to the repeatable fields.
 		 *
 		 * @param {jQuery} field
-		 * @param {jQuery} [handles]
-		 * @param {object} [args]
 		 */
-		appendHandles: function (field, handles, args) {
+		appendHandles: function (field) {
 			// Bail early if field is not repeatable.
 			if (!this.isRepeatableField(field)) {
 				return;
 			}
 
-			handles = handles || this.getHandles();
+			var repeatableHandles = $([
+					'<div class="cfb-repeatable-handles">',
+					'<a href="#" class="cfb-add-control" title="' + this.l18n('add_control_button_text') + '"><span class="cfb-icon cfb-icon-add"></span></a>',
+					'<a href="#" class="cfb-remove-control" title="' + this.l18n('remove_control_button_text') + '"><span class="cfb-icon cfb-icon-remove"></span></a>',
+					'</div>'
+				].join('')),
+				sortHandle = $('<span class="cfb-sort-handle" title="' + this.l18n('sort_control_button_text') + '"><span class="cfb-icon cfb-icon-sort"></span></span>');
 
-			args = $.extend({}, {
-				'appendAfterEach': true,
-				'handleAfterEach': handles.clone(),
-				'appendAfterAll': false,
-				'handleAfterAll': handles.clone()
-			}, args);
+			wp.hooks.doAction('cfb.pre_append_handles', field);
 
-			wp.hooks.doAction('cfb.pre_append_handles', field, handles, args);
+			this.getFieldControls(field, true).prepend(sortHandle).append(repeatableHandles);
 
-			if (args.appendAfterEach) {
-				this.getFieldControls(field, true).append(args.handleAfterEach);
-			}
-			if (args.appendAfterAll) {
-				this.getFieldControlWrapper(field).append(args.handleAfterAll);
-			}
+			wp.hooks.doAction('cfb.appended_handles', field);
 
 			// Toggle the repeatable field handles after they are appended.
 			this.toggleHandles(field);
-
-			wp.hooks.doAction('cfb.appended_handles', field, handles, args);
 		},
 
 		/**
@@ -567,9 +541,9 @@ window.c7FormBuilder = (function ($) {
 			if (!target.length) {
 				target = cfb.getFieldControls(field).last();
 			}
-			if ($(e.target).hasClass('cfb-add-control')) {
+			if ($(e.target).closest('.cfb-add-control').length > 0) {
 				cfb.addControl(target, field, form);
-			} else if ($(e.target).hasClass('cfb-remove-control')) {
+			} else if ($(e.target).closest('.cfb-remove-control').length > 0) {
 				cfb.removeControl(target, field, form);
 			}
 		});
@@ -607,7 +581,9 @@ window.c7FormBuilder = (function ($) {
 	// Update controls after field control position is changed.
 	wp.hooks.addAction('cfb.sortupdate', function (e, ui) {
 		// Check if field control is moved downward/upward and act accordingly.
-		if (ui.item.index() > ui.item.data('sortstart-index')) {
+		var index = $(e.target).find('> .cfb-field-control').not('.cfb-empty-control').index(ui.item);
+
+		if (index > ui.item.data('sortstart-index')) {
 			cfb.updateControls(ui.item.prevAll('.cfb-field-control').addBack());
 		} else {
 			cfb.updateControls(ui.item.nextAll('.cfb-field-control').addBack());
@@ -619,9 +595,16 @@ window.c7FormBuilder = (function ($) {
 
 	// Setup Editor Field
 	wp.hooks.addAction('cfb.ready_editor_field_control', cfb.fields.editor.initialize);
-	wp.hooks.addAction('cfb.pre_remove_controls', cfb.fields.editor.destroy);
+	wp.hooks.addAction('cfb.pre_remove_control', cfb.fields.editor.destroy);
 	wp.hooks.addAction('cfb.pre_update_controls', cfb.fields.editor.destroy);
-	wp.hooks.addAction('cfb.updated_controls', cfb.fields.editor.initialize);
+	wp.hooks.addAction('cfb.updated_controls', function (controls) {
+		cfb.getAllFieldControls(controls, {type: 'editor', includeEmpty: true}).each(function () {
+			var newID = $(this).find('.wp-editor-area').attr('id');
+			$(this).find('.wp-switch-editor[data-wp-editor-id]').attr('data-wp-editor-id', newID);
+			$(this).find('.add_media[data-editor]').attr('data-editor', newID);
+		});
+		cfb.fields.editor.initialize(controls);
+	});
 
 	// Destroy editor instance on sortstart.
 	wp.hooks.addAction('cfb.sortstart', function (e, ui) {

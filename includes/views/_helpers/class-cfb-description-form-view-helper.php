@@ -7,7 +7,7 @@
  * @author     Chetan Chauhan <chetanchauhan1991@gmail.com>
  * @license    GPL-2.0+
  * @link       https://github.com/chetanchauhan/c7-form-builder/
- * @copyright  2014 Chetan Chauhan
+ * @copyright  2014-2015 Chetan Chauhan
  * @since      1.0.0
  */
 
@@ -31,7 +31,7 @@ class CFB_Description_Form_View_Helper extends CFB_Form_View_Helper {
 	 * @return string
 	 */
 	protected function get_html_content() {
-		return wpautop( $this->form->description );
+		return $this->form->description;
 	}
 
 }

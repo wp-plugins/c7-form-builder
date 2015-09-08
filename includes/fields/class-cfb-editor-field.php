@@ -7,7 +7,7 @@
  * @author     Chetan Chauhan <chetanchauhan1991@gmail.com>
  * @license    GPL-2.0+
  * @link       https://github.com/chetanchauhan/c7-form-builder/
- * @copyright  2014 Chetan Chauhan
+ * @copyright  2014-2015 Chetan Chauhan
  * @since      1.0.0
  */
 
@@ -33,7 +33,7 @@ class CFB_Editor_Field extends CFB_Field {
 	public $options = array();
 
 	/**
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @param string $html_name
 	 * @param string $html_id
 	 *
@@ -49,16 +49,9 @@ class CFB_Editor_Field extends CFB_Field {
 
 		ob_start();
 		wp_editor( $value, $html_id, $options );
+		$editor = ob_get_clean();
 
-		return ob_get_clean();
-	}
-
-	/**
-	 * @since     1.0.0
-	 * @access    public
-	 */
-	public function enqueue() {
-		wp_enqueue_style( 'editor-buttons' );
+		return str_replace( '<div id="wp-' . $html_id . '-wrap"', '<div id="wp-' . $html_id . '-wrap" data-editor-settings="' . $html_id . '"', $editor );
 	}
 
 	/**
@@ -67,5 +60,4 @@ class CFB_Editor_Field extends CFB_Field {
 	public function get_type() {
 		return 'editor';
 	}
-
 }

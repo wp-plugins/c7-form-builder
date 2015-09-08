@@ -3,11 +3,11 @@
  * Main C7 Form Builder Class
  *
  * @package    C7_Form_Builder
- * @subpackage C7_Form_Builder/Abstracts
+ * @subpackage C7_Form_Builder/Main
  * @author     Chetan Chauhan <chetanchauhan1991@gmail.com>
  * @license    GPL-2.0+
  * @link       https://github.com/chetanchauhan/c7-form-builder/
- * @copyright  2014 Chetan Chauhan
+ * @copyright  2014-2015 Chetan Chauhan
  * @since      1.0.0
  */
 
@@ -166,12 +166,16 @@ final class CFB_Main {
 
 		// Enqueue common scripts and styles.
 		wp_enqueue_script( 'cfb-event-manager', C7_FORM_BUILDER_URL . "assets/js/event-manager{$suffix}.js", array(), C7_FORM_BUILDER_VERSION );
-		wp_enqueue_script( 'c7-form-builder', C7_FORM_BUILDER_URL . "assets/js/cfb{$suffix}.js", array( 'jquery', 'cfb-event-manager' ), C7_FORM_BUILDER_VERSION );
+		wp_enqueue_script( 'c7-form-builder', C7_FORM_BUILDER_URL . "assets/js/cfb{$suffix}.js", array(
+			'jquery',
+			'cfb-event-manager',
+		), C7_FORM_BUILDER_VERSION );
 		wp_enqueue_style( 'c7-form-builder', C7_FORM_BUILDER_URL . "assets/css/cfb{$suffix}.css", array(), C7_FORM_BUILDER_VERSION );
 
 		wp_localize_script( 'c7-form-builder', 'cfbL10n', apply_filters( 'cfb_script_localized_data', array(
-					'add_control_button_text' => __( '+', 'c7-form-builder' ),
-					'remove_control_button_text' => __( '-', 'c7-form-builder' ),
+					'add_control_button_text'    => __( 'Add', 'c7-form-builder' ),
+					'remove_control_button_text' => __( 'Remove', 'c7-form-builder' ),
+					'sort_control_button_text'   => __( 'Drag to reorder', 'c7-form-builder' ),
 				)
 			)
 		);
@@ -251,9 +255,9 @@ final class CFB_Main {
 	 * @since  1.0.0
 	 * @access public
 	 *
-	 * @param string $form_name Unique name of the form(required)
-	 * @param string $form_type Type of the form
-	 * @param array  $form_args Form args(optional)
+	 * @param string $form_name Unique name of the form(required).
+	 * @param string $form_type Type of the form.
+	 * @param array $form_args Form args.
 	 *
 	 * @return bool
 	 */
@@ -290,7 +294,7 @@ final class CFB_Main {
 	 * @since     1.0.0
 	 * @access    public
 	 *
-	 * @param string $form_name
+	 * @param string $form_name Name of the registered form.
 	 *
 	 * @return bool|CFB_Form    Form object or false if form is not registered.
 	 */
@@ -309,7 +313,7 @@ final class CFB_Main {
 	/**
 	 * Checks if a form is registered or not.
 	 *
-	 * @param $form_name
+	 * @param string $form_name Name of the form to be checked.
 	 *
 	 * @return bool
 	 */
@@ -418,10 +422,10 @@ final class CFB_Main {
 	 * @since  1.0.0
 	 * @access public
 	 *
-	 * @param string   $field_type
+	 * @param string $field_type
 	 * @param CFB_Form $form
-	 * @param string   $field_name
-	 * @param array    $field_args
+	 * @param string $field_name
+	 * @param array $field_args
 	 *
 	 * @return false|CFB_Field
 	 */
@@ -477,9 +481,9 @@ final class CFB_Main {
 	 * @since  1.0.0
 	 * @access public
 	 *
-	 * @param  string    $storage_type
+	 * @param  string $storage_type
 	 * @param  CFB_Field $field
-	 * @param  array     $storage_args
+	 * @param  array $storage_args
 	 *
 	 * @return false|CFB_Storage
 	 */
@@ -496,8 +500,8 @@ final class CFB_Main {
 	 * @since  1.0.0
 	 * @access public
 	 *
-	 * @param      $view_type
-	 * @param      $class_name
+	 * @param string $view_type
+	 * @param string $class_name
 	 * @param bool $force
 	 *
 	 * @return bool
@@ -536,7 +540,7 @@ final class CFB_Main {
 	 *
 	 * @param          $view_type
 	 * @param CFB_Form $form
-	 * @param array    $view_args
+	 * @param array $view_args
 	 *
 	 * @return false|CFB_Form_View
 	 */
@@ -593,7 +597,7 @@ final class CFB_Main {
 	 *
 	 * @param           $view_type
 	 * @param CFB_Field $field
-	 * @param array     $view_args
+	 * @param array $view_args
 	 *
 	 * @return false|CFB_Field_View
 	 */

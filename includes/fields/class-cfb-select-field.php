@@ -7,7 +7,7 @@
  * @author     Chetan Chauhan <chetanchauhan1991@gmail.com>
  * @license    GPL-2.0+
  * @link       https://github.com/chetanchauhan/c7-form-builder/
- * @copyright  2014 Chetan Chauhan
+ * @copyright  2014-2015 Chetan Chauhan
  * @since      1.0.0
  */
 
@@ -36,7 +36,7 @@ class CFB_Select_Field extends CFB_Field {
 	public $multiple = false;
 
 	/**
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @param string $html_name
 	 * @param string $html_id
 	 *
@@ -55,6 +55,7 @@ class CFB_Select_Field extends CFB_Field {
 				'readonly' => $this->readonly,
 				'disabled' => $this->disabled,
 				'multiple' => $this->multiple,
+				'required' => $this->required,
 			)
 		);
 

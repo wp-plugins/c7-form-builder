@@ -7,7 +7,7 @@
  * @author     Chetan Chauhan <chetanchauhan1991@gmail.com>
  * @license    GPL-2.0+
  * @link       https://github.com/chetanchauhan/c7-form-builder/
- * @copyright  2014 Chetan Chauhan
+ * @copyright  2014-2015 Chetan Chauhan
  * @since      1.0.0
  */
 
@@ -39,14 +39,14 @@ class CFB_Textarea_Field extends CFB_Field {
 	 * @return void
 	 */
 	protected function initialize() {
-		add_filter( "cfb_filter_{$this->get_type()}_field_value", 'esc_textarea' );
+		add_filter( "cfb_filter_{$this->get_type()}_field_value", 'wp_kses_post' );
 
 		// Do not remove.
 		parent::initialize();
 	}
 
 	/**
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @param string $html_name
 	 * @param string $html_id
 	 *
@@ -63,10 +63,11 @@ class CFB_Textarea_Field extends CFB_Field {
 				'placeholder' => $this->placeholder,
 				'readonly'    => $this->readonly,
 				'disabled'    => $this->disabled,
+				'required'    => $this->required,
 			)
 		);
 
-		return CFB_Html::tag( 'textarea', $html_attributes, $value, false );
+		return CFB_Html::tag( 'textarea', $html_attributes, esc_textarea( $value ), false );
 
 	}
 

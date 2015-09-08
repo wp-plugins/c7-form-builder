@@ -7,7 +7,7 @@
  * @author     Chetan Chauhan <chetanchauhan1991@gmail.com>
  * @license    GPL-2.0+
  * @link       https://github.com/chetanchauhan/c7-form-builder/
- * @copyright  2014 Chetan Chauhan
+ * @copyright  2014-2015 Chetan Chauhan
  * @since      1.0.0
  */
 
@@ -235,7 +235,7 @@ abstract class CFB_Form extends CFB_Core {
 		}
 
 		// Get the submitted data.
-		$submitted_data = $_REQUEST['c7_form_builder'][ $this->get_name() ];
+		$submitted_data = wp_unslash( $_REQUEST['c7_form_builder'][ $this->get_name() ] );
 
 		// Bail if the submission is not valid.
 		if ( ! apply_filters( 'cfb_form_is_submission_valid', $this->is_submission_valid( $submitted_data ), $submitted_data, $this ) ) {

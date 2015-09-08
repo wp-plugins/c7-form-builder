@@ -7,7 +7,7 @@
  * @author     Chetan Chauhan <chetanchauhan1991@gmail.com>
  * @license    GPL-2.0+
  * @link       https://github.com/chetanchauhan/c7-form-builder/
- * @copyright  2014 Chetan Chauhan
+ * @copyright  2014-2015 Chetan Chauhan
  * @since      1.0.0
  */
 
@@ -184,22 +184,6 @@ class CFB_Group_Field extends CFB_Field {
 	 * @return mixed $value Sanitized value
 	 */
 	protected function apply_filters( $value ) {
-		if ( $this->is_repeatable() ) {
-			return array_map( array( $this, 'filter_children_value' ), $value );
-		}
-
-		return $this->filter_children_value( $value );
-	}
-
-	/**
-	 * @since     1.0.0
-	 * @access    protected
-	 *
-	 * @param mixed $value Un-sanitized value
-	 *
-	 * @return mixed $value Sanitized value
-	 */
-	protected function filter_children_value( $value ) {
 		foreach ( $value as $child_name => $val ) {
 			$child = $this->get_child_field( $child_name );
 			$child->set_value( $val );
